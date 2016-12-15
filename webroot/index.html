@@ -45,25 +45,54 @@
 </head>
 <body>
 <script>
-    var ws = new WebSocket("ws://localhost:8080");
-    ws.onopen = function (event) {
-        ws.send("UserID:1");
-    };
-    function send(event) {
 
+    var userId=1;
+    var receiverId=2;
+    var conversationId = userId+receiverId;
+    var eb = new EventBus("/eventbus/");
+    var userJson = {
+        userId: userId,
+            username: "kalleanka"
+    };
+    var receiverJson = {
+        userId: receiverId,
+            username: "ankakalle"
+    };
+
+    var getMessages = {
+        conversationId: conversationId,
+        action: "getMessages",
+        chatMessageViewModel : {
+            message: "hej",
+            sender: userJson,
+            receiver: receiverJson
+        }
+    };
+
+
+    eb.onopen = function () {
+        eb.publish("chat.server", getMessages);
+        eb.registerHandler("chat."+conversationId, function (err, msg) {
+            $('#chat').append(msg.body + "\n");
+        });
+    };
+
+
+
+    function send(event) {
         if (event.keyCode == 13 || event.which == 13) {
-            var message = {
-                type: "message",
-                text: $('#input').val(),
-                id:  "hej",
-                date: Date.now()
+            var sendMessage = {
+                conversationId: conversationId,
+                action: "sendMessage",
+                chatMessageViewModel : {
+                    message:  $('#input').val(),
+                    sender: userJson,
+                    receiver: receiverJson
+                }
             };
-            ws.send($('#input').val());
+            eb.publish("chat.server", sendMessage);
             $('#input').val("");
         }
-    }
-    ws.onmessage = function (event) {
-        $('#chat').append(event.data + "\n");
     }
 </script>
 <div id="chat" class="inset"></div>
