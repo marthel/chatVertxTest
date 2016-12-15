@@ -45,7 +45,8 @@ public class ChatDb {
         cq.where(cb.or(p1,p2));
         Collection<ChatMessageEntity> chatMessages = entityManager.createQuery(cq).getResultList();
         entityManager.close();
-
+        chatMessages.forEach(msg -> msg.getSender().setPassword(""));
+        chatMessages.forEach(msg -> msg.getReceiver().setPassword(""));
         return  chatMessages;
     }
 }

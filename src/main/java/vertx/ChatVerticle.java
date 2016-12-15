@@ -49,8 +49,7 @@ public class ChatVerticle extends AbstractVerticle{
             JsonObject chatMsg = new JsonObject(json.getJsonObject("chatMessageViewModel").toString());
             switch (json.getString("action")){
                 case "getMessages":
-                    chatManager.getChatMessagesBySenderAndReceiver(Json.decodeValue(chatMsg.toString(), ChatMessageViewModel.class));
-                    eb.publish("chat."+json.getInteger("conversationId"), "Willkommen");
+                    eb.publish("chat."+json.getInteger("conversationId"), chatManager.getChatMessagesBySenderAndReceiver(Json.decodeValue(chatMsg.toString(), ChatMessageViewModel.class)).toString());
                     break;
                 case "sendMessage":
                     eb.publish("chat."+json.getInteger("conversationId"), chatManager.sendMessage(Json.decodeValue(chatMsg.toString(), ChatMessageViewModel.class)).toString());
