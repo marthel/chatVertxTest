@@ -45,20 +45,25 @@
 </head>
 <body>
 <script>
-    var eb = new EventBus("/eventbus/");
-    eb.onopen = function () {
-        eb.registerHandler("chat-client", function (err, msg) {
-            $('#chat').append(msg.body + "\n");
-        });
+    var ws = new WebSocket("ws://localhost:8080");
+    ws.onopen = function (event) {
+        ws.send("UserID:1");
     };
     function send(event) {
+
         if (event.keyCode == 13 || event.which == 13) {
-            var message = $('#input').val();
-            if (message.length > 0) {
-                eb.publish("chat-server", message);
-                $('#input').val("");
-            }
+            var message = {
+                type: "message",
+                text: $('#input').val(),
+                id:  "hej",
+                date: Date.now()
+            };
+            ws.send($('#input').val());
+            $('#input').val("");
         }
+    }
+    ws.onmessage = function (event) {
+        $('#chat').append(event.data + "\n");
     }
 </script>
 <div id="chat" class="inset"></div>
